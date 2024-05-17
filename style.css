@@ -1,0 +1,17 @@
+body {
+    margin: 0;
+    background-color: black;
+    color: #fff;
+}
+
+.container {
+    margin-top: 1%;
+}
+
+#search-input {
+    width: 25%;
+}
+
+.col {
+    text-align: center;
+}
