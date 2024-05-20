@@ -6,16 +6,33 @@ const highTempEl = document.querySelector('.high-temp');
 const lowTempEl = document.querySelector('.low-temp');
 const currentConditionsEl = document.querySelector('.conditions');
 const pastSearchesEl = document.querySelector('.past-searches');
+const cityHeaderEl = document.querySelector('.city-header')
+let pastSearches = []
+let pastSearchesFromLS = JSON.parse(localStorage.getItem('pastSearches'))
 
-// if localStorage has past searches, display them below
+// if localStorage has past searches, render them to DOM
+if (pastSearchesFromLS) {
+    pastSearches = pastSearchesFromLS;
+    renderSearches();
+}
 
+function renderSearches() {
+    let render = ''
+    for (const query of pastSearches) {
+        render += `<li>${query}</li>`
+
+    }
+    pastSearchesEl.innerHTML = render;
+}
+
+// Configure enter key
 inputFieldEl.addEventListener('keyup', function(event) {
     if (event.keyCode === 13) { // Check if Enter key is pressed (keyCode 13)
       searchButtonEl.click(); // Simulate clicking the search button
     }
 });
 
-
+// Search button event listener
 searchButtonEl.addEventListener('click', async() => {
     const cityName = inputFieldEl.value;
     if (!cityName) {
@@ -24,6 +41,7 @@ searchButtonEl.addEventListener('click', async() => {
     }
 
     saveSearch(cityName);
+    cityHeaderEl.innerHTML = `${cityName}`
 
     const locationUrl = `http://dataservice.accuweather.com/locations/v1/cities/search?apikey=${key}&q=${cityName}`
     try {
@@ -49,6 +67,7 @@ searchButtonEl.addEventListener('click', async() => {
         const currentTemp = currentConditionsData[0].Temperature.Imperial.Value;
         const currentConditions = currentConditionsData[0].WeatherText;
 
+
         currentTempEl.innerHTML = `Current: ${currentTemp} F`;
         highTempEl.innerHTML = `High: ${highTemp} F`;
         lowTempEl.innerHTML = `Low: ${lowTemp} F`;
@@ -63,13 +82,12 @@ searchButtonEl.addEventListener('click', async() => {
 })
 
 function saveSearch(query) {
-    let recentSearches = JSON.parse(localStorage.getItem('recentSearches')) || [];
-    recentSearches.unshift(query)
-    localStorage.setItem('recentSearches', JSON.stringify(recentSearches));
-    pastSearchesEl.innerHTML = ''
-    for (const search of recentSearches) {
-        pastSearchesEl.innerHTML += `<li>${search}</li>`
+    pastSearches.unshift(query) // add to front of array
+    if (pastSearches.length > 5) {
+        pastSearches.pop(); // remove the last item if array is longer than 5
     }
+    localStorage.setItem('pastSearches', JSON.stringify(pastSearches));
+    renderSearches()
 }
 
 function clearInputField() {
