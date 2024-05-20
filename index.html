@@ -17,10 +17,20 @@
   <body>
     <div class="container ">
       <!-- row 1 - search bar and button-->
+      <div class="row">
+        <div class="col p-2">
+          <h1>Celery Weather 🥬</h1>
+        </div>
+        
+      </div>
       <div class="row"> 
         <div class="col d-flex justify-content-center align-items-center">
-          <input id='search-input' type="search" class="form-control" placeholder="Enter a city..." aria-label="Search">
-          <button class="btn btn-primary" id = 'search-button'>Search</button>
+          <input type="search" class="form-control search-input" placeholder="Enter a city..." aria-label="Search">
+          <button class="btn btn-primary search-button">Search</button>
+        </div>
+        <div class="col d-flex my-4 flex-column justify-content-center align-items-center">
+          <h3>Past Searches</h4>
+          <ul class="past-searches list-group">--</ul>
         </div>
       </div>
 
@@ -58,18 +68,15 @@
       <!-- row 5 - remember this day button-->
       <div class="row">
         <div class="col m-4">
-          <button class="btn btn-secondary" id = 'remember-button'>Remember this day!</button>
+          <button class="btn btn-secondary remember-button">Remember this day!</button>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col footer">
+          @ 2024 Danny Capua. Powered by AccuWeather.
         </div>
       </div>
 
-      <!-- row 6 - past searches list-->
-      <div class="row" id="past-searches-container">
-        <div class="col">
-          <h3>Past Searches</h4>
-          <ul class="past-searches">No recent searches</ul>
-        </div>
-        
-      </div>
       
     </div>
     <script
@@ -77,6 +84,6 @@
       integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4"
       crossorigin="anonymous"
     ></script>
-    <script type="module" src="/app.js"></script>
+    <script src="/app.js" type="module"></script>
   </body>
 </html>
