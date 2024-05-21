@@ -1,7 +1,7 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js"
-import { getDatabase, ref, push, onValue, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js"
+import { initializeApp } from "firebase/app"
+import { getDatabase, ref, push, onValue, remove } from "firebase/database";
 
-const key = 'jLEvUxwMLZTRT1isLd2DmdvYr6tzafoB';
+const key = '57cafcdea05492d231c0ff9960ce3194';
 
 // DOM Elements
 const inputFieldEl = document.querySelector('.search-input');
@@ -12,7 +12,7 @@ const lowTempEl = document.querySelector('.low-temp');
 const currentConditionsEl = document.querySelector('.conditions');
 const pastSearchesEl = document.querySelector('.past-searches');
 const cityHeaderEl = document.querySelector('.city-header');
-const memoryButtonEl = document.querySelector('remember-button')
+const memoryButtonEl = document.querySelector('.memory-button')
 
 let pastSearches = [];
 const pastSearchesFromLS = JSON.parse(localStorage.getItem('pastSearches'));
@@ -21,9 +21,10 @@ const pastSearchesFromLS = JSON.parse(localStorage.getItem('pastSearches'));
 const firebaseConfig = {
     databaseURL: "https://playground-5e0a6-default-rtdb.firebaseio.com/"
 }
-const app = initializeApp(firebaseConfig)
-const database = getDatabase(app)
-const memoriesInDB = ref(database, "Memories")
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+let memoriesInDB = ref(database, "Memories");
 
 // Initialize past searches from localStorage
 if (pastSearchesFromLS) {
@@ -61,21 +62,6 @@ memoryButtonEl.addEventListener('click', () => {
 
 // Functions
 
-const saveMemoryToFirebase = (city, state, country) => {
-    push(memoriesInDB, {
-        city,
-        state,
-        country,
-        timestamp: new Date().toISOString()
-    })
-    .then(() => {
-        alert('Memory saved');
-    })
-    .catch((error) => {
-        console.error('Error saving memory:', error);
-    });
-};
-
 // Save Search to Local Storage and Render
 function saveAndRenderSearch(city, state, country) {
     pastSearches.unshift(`${city}, ${state}, ${country}`);
@@ -84,6 +70,51 @@ function saveAndRenderSearch(city, state, country) {
     }
     localStorage.setItem('pastSearches', JSON.stringify(pastSearches));
     renderSearches();
+}
+
+// Perform Search
+async function performSearch(cityName) {
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${key}&units=imperial`;
+    try {
+        const forecastResponse = await axios.get(forecastUrl);
+        const forecastData = await forecastResponse.data;
+
+        const lat = forecastData.coord.lat;
+        const lon = forecastData.coord.lon;
+
+        const locationUrl = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${key}`;
+
+        try {
+            const locationResponse = await axios.get(locationUrl);
+            const locationData = await locationResponse.data;
+            updateUI(locationData, forecastData);
+    
+        } catch (error) {
+            console.error('Error:', error);
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Update Weather UI
+function updateUI(locationData, forecastData) {
+
+    const lowTemp = forecastData.main.temp_min;
+    const highTemp = forecastData.main.temp_max;
+    const currentTemp = forecastData.main.temp;
+    const currentConditions = forecastData.weather[0].description;
+    const city = locationData[0].name;
+    const state = locationData[0].state;
+    const country = locationData[0].country;
+
+    renderHeader(city, state, country);
+    renderCurrentTemp(currentTemp);
+    renderHighTemp(highTemp);
+    renderLowTemp(lowTemp);
+    renderCurrentConditions(currentConditions);
+    saveAndRenderSearch(city, state, country);
 }
 
 // Render Past Searches
@@ -102,60 +133,9 @@ function addClickEventsToSearchItems() {
     searchItems.forEach(item => {
         item.addEventListener('click', (event) => {
             const cityName = event.target.textContent;
-            // saveSearch(cityName);
             performSearch(cityName);
         });
     });
-}
-
-// Perform Search
-async function performSearch(cityName) {
-    const locationUrl = `http://dataservice.accuweather.com/locations/v1/cities/search?apikey=${key}&q=${cityName}`;
-    try {
-        const locationResponse = await axios.get(locationUrl);
-        const locationData = locationResponse.data;
-
-        if (locationData.length === 0) {
-            alert('City not found.');
-            return;
-        }
-
-        const locationKey = locationData[0].Key;
-        const forecastUrl = `http://dataservice.accuweather.com/forecasts/v1/daily/1day/${locationKey}?apikey=${key}`;
-        const currentConditionsUrl = `http://dataservice.accuweather.com/currentconditions/v1/${locationKey}?apikey=${key}`;
-
-        const [forecastResponse, currentConditionsResponse] = await Promise.all([
-            axios.get(forecastUrl),
-            axios.get(currentConditionsUrl)
-        ]);
-
-        const forecastData = await forecastResponse.json();
-        const currentConditionsData = await currentConditionsResponse.json();
-
-        updateUI(locationData, forecastData, currentConditionsData);
-
-    } catch (error) {
-        console.error('Error:', error);
-    }
-}
-
-// Update Weather UI
-function updateUI(locationData, forecastData, currentConditionsData) {
-
-    const lowTemp = forecastData.DailyForecasts[0].Temperature.Minimum.Value;
-    const highTemp = forecastData.DailyForecasts[0].Temperature.Maximum.Value;
-    const currentTemp = currentConditionsData[0].Temperature.Imperial.Value;
-    const currentConditions = currentConditionsData[0].WeatherText;
-    const city = locationData[0].EnglishName;
-    const state = locationData[0].AdministrativeArea.EnglishName;
-    const country = locationData[0].Country.ID;
-
-    renderHeader(city, state, country);
-    renderCurrentTemp(currentTemp);
-    renderHighTemp(highTemp);
-    renderLowTemp(lowTemp);
-    renderCurrentConditions(currentConditions);
-    saveAndRenderSearch(city, state, country);
 }
 
 function clearInputField() {
@@ -180,4 +160,19 @@ function renderLowTemp(temp) {
 
 function renderCurrentConditions(conditions) {
     currentConditionsEl.innerHTML = `Conditions: ${conditions}`;
+}
+
+function saveMemoryToFirebase(city, state, country) {
+    push(memoriesInDB, {
+        city,
+        state,
+        country,
+        timestamp: new Date().toISOString()
+    })
+    .then(() => {
+        alert('Memory saved');
+    })
+    .catch((error) => {
+        console.error('Error saving memory:', error);
+    });
 }

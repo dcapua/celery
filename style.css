@@ -1,6 +1,7 @@
 body {
     margin: 0;
-    background-color: black;
+    /* background-color: black; */
+    background: linear-gradient(to right, #000000, #434343);
     color: #fff;
 }
 
