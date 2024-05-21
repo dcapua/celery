@@ -1,7 +1,7 @@
 import { initializeApp } from "firebase/app"
 import { getDatabase, ref, push, onValue, remove } from "firebase/database";
 
-const key = '57cafcdea05492d231c0ff9960ce3194';
+const key = import.meta.env.VITE_API_KEY;
 
 // DOM Elements
 const inputFieldEl = document.querySelector('.search-input');
@@ -17,6 +17,12 @@ const memoryButtonEl = document.querySelector('.memory-button')
 let pastSearches = [];
 const pastSearchesFromLS = JSON.parse(localStorage.getItem('pastSearches'));
 
+// Initialize past searches from localStorage
+if (pastSearchesFromLS) {
+    pastSearches = pastSearchesFromLS;
+    renderSearches();
+}
+
 // DB 
 const firebaseConfig = {
     databaseURL: "https://playground-5e0a6-default-rtdb.firebaseio.com/"
@@ -25,12 +31,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
 let memoriesInDB = ref(database, "Memories");
-
-// Initialize past searches from localStorage
-if (pastSearchesFromLS) {
-    pastSearches = pastSearchesFromLS;
-    renderSearches();
-}
 
 // Event Listeners
 inputFieldEl.addEventListener('keyup', (event) => {
