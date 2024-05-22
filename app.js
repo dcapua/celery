@@ -1,12 +1,5 @@
 import { initializeApp } from "firebase/app"
-import { getDatabase, ref, push, onValue, remove } from "firebase/database";
-
-// https://api.openweathermap.org/data/2.5/weather?q=Orland%20Park&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
-// https://api.openweathermap.org/data/2.5/weather?q=Orland%20Park,%20Illinois,%20US&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
-
-// https://api.openweathermap.org/data/2.5/weather?q=Oklahoma%20City&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
-// https://api.openweathermap.org/data/2.5/weather?q=Oklahoma%20City,%20Oklahoma,%20US&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
-
+import { getDatabase, ref, push, onValue} from "firebase/database";
 
 const key = import.meta.env.VITE_API_KEY;
 
@@ -32,9 +25,6 @@ const memoryNoteEl = document.querySelector('#memoryNote');
 
 let pastSearches = [];
 const pastSearchesFromLS = JSON.parse(localStorage.getItem('pastSearches'));
-
-// Call loadLastSearch when the page is loaded
-window.addEventListener('load', loadLastSearch);
 
 // Initialize past searches from localStorage
 if (pastSearchesFromLS) {
@@ -87,41 +77,38 @@ searchButtonEl.addEventListener('click', () => {
     if (!cityName) {
         alert('Please enter a city name');
         return;
-    }
-    
+    } 
     performSearch(cityName);
     clearInputField();
 });
 
 memoryButtonEl.addEventListener('click', () => {
-    const cityStateCountry = cityHeaderEl.textContent.split(', ');
-    if (cityStateCountry.length != 3){
-        alert('Please perform a search first');
+    if (cityHeaderEl.textContent.length == 0){
+        alert("Please perform a search first!");
         return;
-    } 
+    }
     const modal = new bootstrap.Modal(memoryModalEl);
     modal.show();
 })
 
 saveMemoryBtnEl.addEventListener('click', () => {
-    const cityStateCountry = cityHeaderEl.textContent.split(', ');
-    const conditions = `${currentTempEl.textContent} and ${conditionsEl.textContent}`;
-    const [city, state, country] = cityStateCountry;
+    const city = cityHeaderEl.textContent;
+    const conditions = `${currentTempEl.textContent}, ${conditionsEl.textContent}`;
     const note = memoryNoteEl.value;
-    saveMemoryToFirebase(city, state, country, conditions, note);
+    saveMemoryToFirebase(city, conditions, note);
 })
 
 // Functions
 
 // Save Search to Local Storage and Render
-function saveAndRenderSearch(city, state, country) {
-    const newSearch = `${city}, ${state}, ${country}`;
+function saveAndRenderSearch(city) {
+    const newSearch = `${city}`;
     const index = pastSearches.indexOf(newSearch);
     if (index !== -1) {
         // Remove the duplicate entry from the array
         pastSearches.splice(index, 1);
     }
-    pastSearches.unshift(`${city}, ${state}, ${country}`);
+    pastSearches.unshift(`${city}`);
     if (pastSearches.length > 3) {
         pastSearches.pop();
     }
@@ -130,35 +117,25 @@ function saveAndRenderSearch(city, state, country) {
 }
 
 // Perform Search
-async function performSearch(cityName) {
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${key}&units=imperial`;
+async function performSearch(city) {
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=imperial`;
+    const locationUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${key}`
     try {
         const forecastResponse = await axios.get(forecastUrl);
         const forecastData = await forecastResponse.data;
 
-        const lat = forecastData.coord.lat;
-        const lon = forecastData.coord.lon;
+        const locationResponse = await axios.get(locationUrl);
+        const locationData = await locationResponse.data;
 
-        const locationUrl = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${key}`;
-
-        try {
-            const locationResponse = await axios.get(locationUrl);
-            const locationData = await locationResponse.data;
-            updateUI(locationData, forecastData);
-            saveLastSearch(locationData[0].name, locationData[0].state, locationData[0].country);
-    
-        } catch (error) {
-            console.error('Error:', error);
-        }
-
+        updateUI(forecastData, locationData);
     } catch (error) {
-        alert("Please enter a proper city name")
+        alert("Please enter a proper city name. If the wrong city is displayed, enter the city in the following format: Chicago, IL, US")
         console.error('Error:', error);
     }
 }
 
 // Update Weather UI
-function updateUI(locationData, forecastData) {
+function updateUI(forecastData, locationData) {
 
     const lowTemp = forecastData.main.temp_min;
     const highTemp = forecastData.main.temp_max;
@@ -170,10 +147,10 @@ function updateUI(locationData, forecastData) {
     const city = locationData[0].name;
     const state = locationData[0].state;
     const country = locationData[0].country;
-
+    
     renderHeader(city, state, country);
     renderWeatherData(currentConditions, currentTemp, highTemp, lowTemp, feelsLikeTemp, windSpeed, humidity);
-    saveAndRenderSearch(city, state, country);
+    saveAndRenderSearch(city);
 }
 
 // Render Past Searches
@@ -216,32 +193,15 @@ function renderWeatherData(currentConditions, currentTemp, highTemp, lowTemp, fe
 
 }
 
-async function saveMemoryToFirebase(city, state, country, conditions, note) {
+async function saveMemoryToFirebase(city, conditions, note) {
     try {
         await push(memoriesInDB, {
             city,
-            state,
-            country,
             conditions,
             note,
             timestamp: new Date().toLocaleString()
         })
     } catch(error) {
         console.error('Error saving memory:', error);
-    }
-}
-
-// Save the last search to localStorage
-function saveLastSearch(city, state, country) {
-    const lastSearch = `${city}, ${state}, ${country}`;
-    localStorage.setItem('lastSearch', lastSearch);
-}
-
-// Load the last search from localStorage
-function loadLastSearch() {
-    const lastSearch = localStorage.getItem('lastSearch');
-    if (lastSearch) {
-        const [city] = lastSearch.split(', ');
-        performSearch(city);
     }
 }
