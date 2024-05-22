@@ -119,7 +119,7 @@ function saveAndRenderSearch(city) {
 // Perform Search
 async function performSearch(city) {
     const forecastUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=imperial`;
-    const locationUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${key}`
+    const locationUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${key}`
     try {
         const forecastResponse = await axios.get(forecastUrl);
         const forecastData = await forecastResponse.data;
