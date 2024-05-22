@@ -1,14 +1,6 @@
 import { initializeApp } from "firebase/app"
-import { getDatabase, ref, push, onValue, remove } from "firebase/database";
+import { getDatabase, ref, push, onValue} from "firebase/database";
 
-// https://api.openweathermap.org/data/2.5/weather?q=Orland%20Park&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
-// https://api.openweathermap.org/data/2.5/weather?q=Orland%20Park,%20Illinois,%20US&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
-
-// https://api.openweathermap.org/data/2.5/weather?q=Oklahoma%20City&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
-// https://api.openweathermap.org/data/2.5/weather?q=Oklahoma%20City,%20Oklahoma,%20US&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
-
-// bad https://api.openweathermap.org/data/2.5/weather?q=Orland%20Park,Illinois,US&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
-// good https://api.openweathermap.org/data/2.5/weather?q=Orland%20Park,IL,US&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
 const key = import.meta.env.VITE_API_KEY;
 
 // DOM Elements
@@ -91,21 +83,19 @@ searchButtonEl.addEventListener('click', () => {
 });
 
 memoryButtonEl.addEventListener('click', () => {
-    const cityStateCountry = cityHeaderEl.textContent.split(', ');
-    if (cityStateCountry.length != 3){
-        alert('Please perform a search first');
+    if (cityHeaderEl.textContent.length == 0){
+        alert("Please perform a search first!");
         return;
-    } 
+    }
     const modal = new bootstrap.Modal(memoryModalEl);
     modal.show();
 })
 
 saveMemoryBtnEl.addEventListener('click', () => {
-    const cityStateCountry = cityHeaderEl.textContent.split(', ');
-    const conditions = `${currentTempEl.textContent} and ${conditionsEl.textContent}`;
-    const [city, state, country] = cityStateCountry;
+    const city = cityHeaderEl.textContent;
+    const conditions = `${currentTempEl.textContent}, ${conditionsEl.textContent}`;
     const note = memoryNoteEl.value;
-    saveMemoryToFirebase(city, state, country, conditions, note);
+    saveMemoryToFirebase(city, conditions, note);
 })
 
 // Functions
@@ -129,18 +119,23 @@ function saveAndRenderSearch(city) {
 // Perform Search
 async function performSearch(city) {
     const forecastUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=imperial`;
+    const locationUrl = `http://api.openweathermap.org/geo/1.0/direct?q=${city}&appid=${key}`
     try {
         const forecastResponse = await axios.get(forecastUrl);
         const forecastData = await forecastResponse.data;
-        updateUI(forecastData);
+
+        const locationResponse = await axios.get(locationUrl);
+        const locationData = await locationResponse.data;
+
+        updateUI(forecastData, locationData);
     } catch (error) {
-        alert("Please enter a proper city name")
+        alert("Please enter a proper city name. If the wrong city is displayed, enter the city in the following format: Chicago, IL, US")
         console.error('Error:', error);
     }
 }
 
 // Update Weather UI
-function updateUI(forecastData) {
+function updateUI(forecastData, locationData) {
 
     const lowTemp = forecastData.main.temp_min;
     const highTemp = forecastData.main.temp_max;
@@ -149,10 +144,11 @@ function updateUI(forecastData) {
     const feelsLikeTemp = forecastData.main.feels_like;
     const windSpeed = forecastData.wind.speed;
     const humidity = forecastData.main.humidity;
-    const city = forecastData.name;
+    const city = locationData[0].name;
+    const state = locationData[0].state;
+    const country = locationData[0].country;
     
-
-    renderHeader(city);
+    renderHeader(city, state, country);
     renderWeatherData(currentConditions, currentTemp, highTemp, lowTemp, feelsLikeTemp, windSpeed, humidity);
     saveAndRenderSearch(city);
 }
@@ -182,8 +178,8 @@ function clearInputField() {
     inputFieldEl.value = '';
 }
 
-function renderHeader(city) {
-    cityHeaderEl.innerHTML = `${city}`;
+function renderHeader(city, state, country) {
+    cityHeaderEl.innerHTML = `${city}, ${state}, ${country}`;
 }
 
 function renderWeatherData(currentConditions, currentTemp, highTemp, lowTemp, feelsLikeTemp, windSpeed, humidity) {
@@ -197,12 +193,10 @@ function renderWeatherData(currentConditions, currentTemp, highTemp, lowTemp, fe
 
 }
 
-async function saveMemoryToFirebase(city, state, country, conditions, note) {
+async function saveMemoryToFirebase(city, conditions, note) {
     try {
         await push(memoriesInDB, {
             city,
-            state,
-            country,
             conditions,
             note,
             timestamp: new Date().toLocaleString()
