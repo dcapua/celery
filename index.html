@@ -15,70 +15,154 @@
   </head>
 
   <body>
-    
-    <div class="container ">
-      <!-- row 1 - search bar and button-->
+    <!-- Memory Modal -->
+    <div class="modal fade" id="memoryModal" tabindex="-1">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Add Note to Memory</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="memoryForm">
+              <div class="form-group">
+                <label for="memoryNote">Note</label>
+                <textarea
+                  class="form-control"
+                  id="memoryNote"
+                  rows="3"
+                  placeholder="Did something special happen today?"
+                ></textarea>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-bs-dismiss="modal"
+            >
+              Close
+            </button>
+            <button type="button" class="btn btn-primary" id="saveMemoryBtn" data-bs-dismiss="modal">
+              Save Memory
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="container">
+      <!-- search bar and button-->
       <div class="row">
         <div class="col p-2">
           <h1>Celery Weather 🥬</h1>
         </div>
-        
       </div>
-      <div class="row"> 
+      <div class="row">
         <div class="col d-flex justify-content-center align-items-center">
-          <input type="search" class="form-control search-input" placeholder="Enter a city..." aria-label="Search">
+          <input
+            type="search"
+            class="form-control search-input"
+            placeholder="Enter a city..."
+            aria-label="Search"
+          />
           <button class="btn btn-primary search-button">Search</button>
         </div>
-        <div class="col d-flex my-4 flex-column justify-content-center align-items-center">
-          <h3>Past Searches</h4>
-          <ul class="past-searches list-group">--</ul>
+        <div
+          class="col d-flex my-4 flex-column justify-content-center align-items-center"
+        >
+          <h3>Recents</h3>
+          <ul class="past-searches list-group">
+            --
+          </ul>
         </div>
       </div>
 
-      <div class="row">
-        <div class="col my-4 d-flex justify-content-center align-items-center">
+      <div class="row my-2">
+        <div class="col d-flex justify-content-center align-items-center">
           <h1 class="city-header">--</h1>
         </div>
       </div>
 
-      <!-- row 2 - current-->
-      <div class="row my-4">
-        <div class="col">
-          <span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill current-temp">Current: --</span>
+      <div class="row main-data-container">
+        <div
+          class="col d-flex flex-column justify-content-center align-items-center"
+        >
+          <div class="row conditions">--</div>
+          <div class="row parameter">Conditions</div>
         </div>
       </div>
 
-      <!-- row 3 - high and low-->
-      <div class="row">
-        <div class="col d-flex justify-content-end">
-          <span class="badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis rounded-pill high-temp">High: --</span>
+      <!-- main data-->
+      <div class="row main-data-container">
+        <div
+          class="col d-flex flex-column justify-content-center align-items-center"
+        >
+          <div class="row high-temp">--</div>
+          <div class="row parameter">High</div>
         </div>
-        <div class="col d-flex justify-content-start">
-          <span class="badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis rounded-pill low-temp">Low: --</span>
+        <div
+          class="col d-flex flex-column justify-content-center align-items-center"
+        >
+          <div class="row current-temp">--</div>
+          <div class="row parameter">Current</div>
+        </div>
+        <div
+          class="col d-flex flex-column justify-content-center align-items-center"
+        >
+          <div class="row low-temp">--</div>
+          <div class="row parameter">Low</div>
+        </div>
+      </div>
+      <div class="row secondary-data-container">
+        <div
+          class="col d-flex flex-column justify-content-center align-items-center"
+        >
+          <div class="row feels-like">--</div>
+          <div class="row parameter">Feels Like</div>
+        </div>
+        <div
+          class="col d-flex flex-column justify-content-center align-items-center"
+        >
+          <div class="row wind">--</div>
+          <div class="row parameter">Wind</div>
+        </div>
+        <div
+          class="col d-flex flex-column justify-content-center align-items-center"
+        >
+          <div class="row humidity">--</div>
+          <div class="row parameter">Humidity</div>
         </div>
       </div>
 
-      <!-- row 4 - current conditions-->
-      <div class="row m-4">
-        <div class="col d-flex justify-content-center align-items-center">
-          <div class="conditions">Conditions: --</div>
-        </div>
-        
-      </div>
-      
-      <!-- row 5 - remember this day button-->
+      <!-- remember this day button-->
       <div class="row">
         <div class="col m-4">
-          <button class="btn btn-secondary memory-button">Remember this day!</button>
+          <button class="btn btn-success memory-button">
+            Remember this day!
+          </button>
         </div>
       </div>
-      <div class="row">
+
+      <div
+        class="col"
+      >
+        <h3>Memories</h3>
+        <ul class="memory-list list-group d-flex flex-column justify-content-center align-items-center">
+          --
+        </ul>
+      </div>
+      <div class="row my-4">
         <div class="col footer">
           @ 2024 Danny Capua. Powered by OpenWeatherMap.
         </div>
       </div>
-
-      
     </div>
     <script
       src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js"
