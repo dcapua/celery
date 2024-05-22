@@ -30,9 +30,11 @@ const memoryModalEl = document.querySelector('#memoryModal');
 const saveMemoryBtnEl = document.querySelector('#saveMemoryBtn');
 const memoryNoteEl = document.querySelector('#memoryNote');
 
-
 let pastSearches = [];
 const pastSearchesFromLS = JSON.parse(localStorage.getItem('pastSearches'));
+
+// Call loadLastSearch when the page is loaded
+window.addEventListener('load', loadLastSearch);
 
 // Initialize past searches from localStorage
 if (pastSearchesFromLS) {
@@ -66,6 +68,11 @@ onValue(memoriesInDB, (snapshot) => {
         memoryListEl.innerHTML = render;
     }
 });
+
+const capitalizeFirstLetter = (string) => {
+    if (!string) return string;
+    return `${string.charAt(0).toUpperCase()}${string.slice(1)}`;
+};
 
 
 // Event Listeners
@@ -145,6 +152,7 @@ async function performSearch(cityName) {
         }
 
     } catch (error) {
+        alert("Please enter a proper city name")
         console.error('Error:', error);
     }
 }
@@ -155,7 +163,7 @@ function updateUI(locationData, forecastData) {
     const lowTemp = forecastData.main.temp_min;
     const highTemp = forecastData.main.temp_max;
     const currentTemp = forecastData.main.temp;
-    const currentConditions = forecastData.weather[0].description;
+    const currentConditions = capitalizeFirstLetter(forecastData.weather[0].description);
     const feelsLikeTemp = forecastData.main.feels_like;
     const windSpeed = forecastData.wind.speed;
     const humidity = forecastData.main.humidity;
@@ -172,7 +180,7 @@ function updateUI(locationData, forecastData) {
 function renderSearches() {
     let render = '';
     for (const query of pastSearches) {
-        render += `<li class='past-search-item list-group-item' >${query}</li>`;
+        render += `<li class='past-search-item list-group-item'>${query}</li>`;
     }
     pastSearchesEl.innerHTML = render;
     addClickEventsToSearchItems();
@@ -233,10 +241,7 @@ function saveLastSearch(city, state, country) {
 function loadLastSearch() {
     const lastSearch = localStorage.getItem('lastSearch');
     if (lastSearch) {
-        const [city, state, country] = lastSearch.split(', ');
+        const [city] = lastSearch.split(', ');
         performSearch(city);
     }
 }
-
-// Call loadLastSearch when the page is loaded
-window.addEventListener('load', loadLastSearch);
