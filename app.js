@@ -7,7 +7,8 @@ import { getDatabase, ref, push, onValue, remove } from "firebase/database";
 // https://api.openweathermap.org/data/2.5/weather?q=Oklahoma%20City&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
 // https://api.openweathermap.org/data/2.5/weather?q=Oklahoma%20City,%20Oklahoma,%20US&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
 
-
+// bad https://api.openweathermap.org/data/2.5/weather?q=Orland%20Park,Illinois,US&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
+// good https://api.openweathermap.org/data/2.5/weather?q=Orland%20Park,IL,US&appid=57cafcdea05492d231c0ff9960ce3194&units=imperial
 const key = import.meta.env.VITE_API_KEY;
 
 // DOM Elements
@@ -32,9 +33,6 @@ const memoryNoteEl = document.querySelector('#memoryNote');
 
 let pastSearches = [];
 const pastSearchesFromLS = JSON.parse(localStorage.getItem('pastSearches'));
-
-// Call loadLastSearch when the page is loaded
-window.addEventListener('load', loadLastSearch);
 
 // Initialize past searches from localStorage
 if (pastSearchesFromLS) {
@@ -87,8 +85,7 @@ searchButtonEl.addEventListener('click', () => {
     if (!cityName) {
         alert('Please enter a city name');
         return;
-    }
-    
+    } 
     performSearch(cityName);
     clearInputField();
 });
@@ -114,14 +111,14 @@ saveMemoryBtnEl.addEventListener('click', () => {
 // Functions
 
 // Save Search to Local Storage and Render
-function saveAndRenderSearch(city, state, country) {
-    const newSearch = `${city}, ${state}, ${country}`;
+function saveAndRenderSearch(city) {
+    const newSearch = `${city}`;
     const index = pastSearches.indexOf(newSearch);
     if (index !== -1) {
         // Remove the duplicate entry from the array
         pastSearches.splice(index, 1);
     }
-    pastSearches.unshift(`${city}, ${state}, ${country}`);
+    pastSearches.unshift(`${city}`);
     if (pastSearches.length > 3) {
         pastSearches.pop();
     }
@@ -130,27 +127,12 @@ function saveAndRenderSearch(city, state, country) {
 }
 
 // Perform Search
-async function performSearch(cityName) {
-    const forecastUrl = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${key}&units=imperial`;
+async function performSearch(city) {
+    const forecastUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${key}&units=imperial`;
     try {
         const forecastResponse = await axios.get(forecastUrl);
         const forecastData = await forecastResponse.data;
-
-        const lat = forecastData.coord.lat;
-        const lon = forecastData.coord.lon;
-
-        const locationUrl = `http://api.openweathermap.org/geo/1.0/reverse?lat=${lat}&lon=${lon}&appid=${key}`;
-
-        try {
-            const locationResponse = await axios.get(locationUrl);
-            const locationData = await locationResponse.data;
-            updateUI(locationData, forecastData);
-            saveLastSearch(locationData[0].name, locationData[0].state, locationData[0].country);
-    
-        } catch (error) {
-            console.error('Error:', error);
-        }
-
+        updateUI(forecastData);
     } catch (error) {
         alert("Please enter a proper city name")
         console.error('Error:', error);
@@ -158,7 +140,7 @@ async function performSearch(cityName) {
 }
 
 // Update Weather UI
-function updateUI(locationData, forecastData) {
+function updateUI(forecastData) {
 
     const lowTemp = forecastData.main.temp_min;
     const highTemp = forecastData.main.temp_max;
@@ -167,13 +149,12 @@ function updateUI(locationData, forecastData) {
     const feelsLikeTemp = forecastData.main.feels_like;
     const windSpeed = forecastData.wind.speed;
     const humidity = forecastData.main.humidity;
-    const city = locationData[0].name;
-    const state = locationData[0].state;
-    const country = locationData[0].country;
+    const city = forecastData.name;
+    
 
-    renderHeader(city, state, country);
+    renderHeader(city);
     renderWeatherData(currentConditions, currentTemp, highTemp, lowTemp, feelsLikeTemp, windSpeed, humidity);
-    saveAndRenderSearch(city, state, country);
+    saveAndRenderSearch(city);
 }
 
 // Render Past Searches
@@ -201,8 +182,8 @@ function clearInputField() {
     inputFieldEl.value = '';
 }
 
-function renderHeader(city, state, country) {
-    cityHeaderEl.innerHTML = `${city}, ${state}, ${country}`;
+function renderHeader(city) {
+    cityHeaderEl.innerHTML = `${city}`;
 }
 
 function renderWeatherData(currentConditions, currentTemp, highTemp, lowTemp, feelsLikeTemp, windSpeed, humidity) {
@@ -228,20 +209,5 @@ async function saveMemoryToFirebase(city, state, country, conditions, note) {
         })
     } catch(error) {
         console.error('Error saving memory:', error);
-    }
-}
-
-// Save the last search to localStorage
-function saveLastSearch(city, state, country) {
-    const lastSearch = `${city}, ${state}, ${country}`;
-    localStorage.setItem('lastSearch', lastSearch);
-}
-
-// Load the last search from localStorage
-function loadLastSearch() {
-    const lastSearch = localStorage.getItem('lastSearch');
-    if (lastSearch) {
-        const [city] = lastSearch.split(', ');
-        performSearch(city);
     }
 }
