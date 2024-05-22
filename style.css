@@ -1,6 +1,7 @@
 body {
     margin: 0;
-    background-color: black;
+    /* background-color: black; */
+    background: linear-gradient(to right, #000000, #434343);
     color: #fff;
 }
 
@@ -33,4 +34,33 @@ ul {
     color: grey;
     padding: 5px;
     font-size: 12px;
+}
+
+.main-data-container, .secondary-data-container {
+    background-color: rgba(255, 255, 255, 0.5); /* Translucent white background */
+    color: #000000; /* Text color */
+    border-radius: 50px; /* Rounded corners */
+    padding: 8px 16px; /* Adjust padding as needed */
+    margin: 5px; /* Add margin for spacing */
+}
+
+.parameter {
+    font-weight: bold;
+}
+
+#memoryModal .modal-title {
+    font-family: 'Arial', sans-serif; /* Change to desired font family */
+}
+
+#memoryModal .modal-header,
+#memoryModal .modal-footer {
+    background-color: #d0d0d0; /* Change to desired header and footer background color */
+    color: #222; /* Change to desired header and footer font color */
+}
+
+.memory-item {
+    /* word-wrap: break-word; */
+    width: 95%;
+    
+    overflow-wrap: break-word;
 }
