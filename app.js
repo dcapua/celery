@@ -21,7 +21,7 @@ const memoryButtonEl = document.querySelector('.memory-button');
 const memoryListEl = document.querySelector('.memory-list');
 const memoryModalEl = document.querySelector('#memoryModal');
 const saveMemoryBtnEl = document.querySelector('#saveMemoryBtn');
-const memoryNoteEl = document.querySelector('#memoryNote');
+const memoryNoteEl = document.querySelector('#memoryNote')
 
 let pastSearches = [];
 const pastSearchesFromLS = JSON.parse(localStorage.getItem('pastSearches'));
