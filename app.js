@@ -48,12 +48,15 @@ onValue(memoriesInDB, (snapshot) => {
         let render = '';
         for (const memory of memoriesArray) {
             const currentMemory = memory[1];
-            render += `<li class='memory-item list-group-item'>
-            <div><strong>City:</strong> ${currentMemory.city}</div>
-            <div><strong>Conditions:</strong> ${currentMemory.conditions}</div>
-            <div><strong>Date:</strong> ${currentMemory.timestamp}</div>
-            <p><strong>Note:</strong> ${currentMemory.note}</p>
-                       </li>`;
+            render += 
+            `<div class="list-group-item">
+                <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">${currentMemory.city.split(', ')[0]}</h5>
+                    <small class="text-body-secondary">${currentMemory.conditions}</small>
+                 </div>
+                 <p class="mb-1">${currentMemory.note}</p>
+                 <small class="text-body-secondary">${currentMemory.timestamp}</small>
+            </div>`;
         }
         memoryListEl.innerHTML = render;
     }
