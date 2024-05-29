@@ -1,7 +1,7 @@
 body {
     margin: 0;
     /* background-color: black; */
-    background: linear-gradient(to right, #000000, #434343);
+    background: black;
     color: #fff;
 }
 
@@ -9,7 +9,7 @@ body {
     margin-top: 5%;
 }
 
-.search-input {
+#searchInput {
     width: 200px;
 }
 
@@ -30,13 +30,13 @@ ul {
     background-color: rgba(255, 255, 255, 0.8);
 }
 
-.footer {
+#footer {
     color: grey;
     padding: 5px;
     font-size: 12px;
 }
 
-.main-data-container, .secondary-data-container {
+.main-data-container, #secondary-data-container {
     background-color: rgba(255, 255, 255, 0.8);
     color: #000000;
     border-radius: 50px; 

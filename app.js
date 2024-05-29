@@ -1,27 +1,35 @@
 import { initializeApp } from "firebase/app"
 import { getDatabase, ref, push, onValue} from "firebase/database";
+import { getFirestore } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut } from "firebase/auth";
 
 const key = import.meta.env.VITE_API_KEY;
 
 // DOM Elements
-const inputFieldEl = document.querySelector('.search-input');
-const searchButtonEl = document.querySelector('.search-button');
-const cityHeaderEl = document.querySelector('.city-header');
+const inputFieldEl = document.querySelector('#searchInput');
+const searchButtonEl = document.querySelector('#searchBtn');
+const cityHeaderEl = document.querySelector('#cityHeader');
 
-const conditionsEl = document.querySelector('.conditions');
-const currentTempEl = document.querySelector('.current-temp');
-const highTempEl = document.querySelector('.high-temp');
-const lowTempEl = document.querySelector('.low-temp');
-const feelsLikeEl = document.querySelector('.feels-like');
-const windEl = document.querySelector('.wind');
-const humidityEl = document.querySelector('.humidity');
+const conditionsEl = document.querySelector('#conditions');
+const currentTempEl = document.querySelector('#currentTemp');
+const highTempEl = document.querySelector('#highTemp');
+const lowTempEl = document.querySelector('#lowTemp');
+const feelsLikeEl = document.querySelector('#feelsLike');
+const windEl = document.querySelector('#wind');
+const humidityEl = document.querySelector('#humidity');
 
-const pastSearchesEl = document.querySelector('.past-searches');
-const memoryButtonEl = document.querySelector('.memory-button');
-const memoryListEl = document.querySelector('.memory-list');
+const pastSearchesEl = document.querySelector('#pastSearches');
+const memoryButtonEl = document.querySelector('#memoryBtn');
+const memoryListEl = document.querySelector('#memoryList');
 const memoryModalEl = document.querySelector('#memoryModal');
 const saveMemoryBtnEl = document.querySelector('#saveMemoryBtn');
 const memoryNoteEl = document.querySelector('#memoryNote')
+
+const whenSignedIn = document.querySelector('#whenSignedIn');
+const whenSignedOut = document.querySelector('#whenSignedOut');
+const signInBtn = document.querySelector('#signInBtn');
+const signOutBtn = document.querySelector('#signOutBtn');
+const userDetails = document.querySelector('#userDetails');
 
 let pastSearches = [];
 const pastSearchesFromLS = JSON.parse(localStorage.getItem('pastSearches'));
@@ -32,14 +40,37 @@ if (pastSearchesFromLS) {
     renderSearches();
 }
 
-// DB 
+// Firebase setup
 const firebaseConfig = {
-    databaseURL: "https://playground-5e0a6-default-rtdb.firebaseio.com/"
-}
+    apiKey: "AIzaSyD5AqUt5eAigKC8v3bRrnCA7xPqlh1OnWM",
+    authDomain: "playground-5e0a6.firebaseapp.com",
+    databaseURL: "https://playground-5e0a6-default-rtdb.firebaseio.com",
+    projectId: "playground-5e0a6",
+    storageBucket: "playground-5e0a6.appspot.com",
+    messagingSenderId: "371251362667",
+    appId: "1:371251362667:web:0aebde19b65975751a6a2e"
+  };
 
 const app = initializeApp(firebaseConfig);
 const database = getDatabase(app);
+const auth = getAuth(app);
 let memoriesInDB = ref(database, "Memories");
+const provider = new GoogleAuthProvider();
+
+signInBtn.onclick = () => signInWithRedirect(auth, provider);
+signOutBtn.onclick = () => signOut(auth);
+
+auth.onAuthStateChanged(user => {
+    if (user) {
+        whenSignedIn.hidden = false;
+        whenSignedOut.hidden = true;
+        userDetails.innerHTML = `<h3>${user.email} signed in</h3>`
+    } else {
+        whenSignedIn.hidden = true;
+        whenSignedOut.hidden = false;
+        userDetails.innerHTML = `<h3>Sign in for memories!</h3>`
+    }
+})
 
 onValue(memoriesInDB, (snapshot) => {
     if (snapshot.exists()) {
@@ -62,11 +93,11 @@ onValue(memoriesInDB, (snapshot) => {
     }
 });
 
+// needed because conditions from OpenWeatherMap aren't capitalized
 const capitalizeFirstLetter = (string) => {
     if (!string) return string;
     return `${string.charAt(0).toUpperCase()}${string.slice(1)}`;
 };
-
 
 // Event Listeners
 inputFieldEl.addEventListener('keyup', (event) => {
