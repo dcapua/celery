@@ -1,7 +1,6 @@
 import { initializeApp } from "firebase/app"
-import { getDatabase, ref, push, onValue} from "firebase/database";
-import { getFirestore } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut } from "firebase/auth";
+import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged } from "firebase/auth";
 
 const key = import.meta.env.VITE_API_KEY;
 
@@ -52,9 +51,69 @@ const firebaseConfig = {
   };
 
 const app = initializeApp(firebaseConfig);
-const database = getDatabase(app);
 const auth = getAuth(app);
-let memoriesInDB = ref(database, "Memories");
+
+// firestore
+const db = getFirestore(app)
+let memoriesRef;
+let unsubscribe;
+
+onAuthStateChanged(auth, user => {
+    if (user) {
+        saveMemoryBtnEl.onclick = async () => {
+            try {
+                const city = cityHeaderEl.textContent;
+                const conditions = `${currentTempEl.textContent}, ${conditionsEl.textContent}`;
+                const note = memoryNoteEl.value;
+
+                memoriesRef = collection(db, 'memories');
+
+                await addDoc(memoriesRef, {
+                    uid: user.uid,
+                    city: city,
+                    conditions: conditions,
+                    note: note,
+                    createdAt: serverTimestamp()
+                });
+
+                console.log('Document successfully added!');
+            } catch (error) {
+                console.error('Error adding document: ', error);
+            }
+        };
+
+        // Set up the real-time listener for the authenticated user's memories
+        const memoriesQuery = query(collection(db, 'memories'), where('uid', '==', user.uid), orderBy('createdAt', 'desc'));
+
+        unsubscribe = onSnapshot(memoriesQuery, (querySnapshot) => {
+            memoryListEl.innerHTML = ""; // Clear previous memories
+            querySnapshot.forEach((doc) => {
+                const memory = doc.data();
+                const memoryElement = document.createElement('div');
+                memoryElement.classList.add('list-group-item');
+                const createdAt = memory.createdAt ? memory.createdAt.toDate().toLocaleString() : 'Unknown Date';
+                memoryElement.innerHTML = `
+                    <div class="d-flex w-100 justify-content-between">
+                        <h5 class="mb-1">${memory.city.split(', ')[0]}</h5>
+                        <small class="text-body-secondary">${createdAt}</small>
+                    </div>
+                    <p class="mb-1">${memory.conditions}</p>
+                    <p class="mb-1">${memory.note}</p>
+                `;
+                memoryListEl.appendChild(memoryElement);
+            });
+        }, (error) => {
+            console.error('Error fetching real-time updates: ', error);
+        });
+    } else {
+        console.log('User is not signed in');
+        if (unsubscribe) {
+            unsubscribe(); // Unsubscribe from the listener when the user signs out
+        }
+        memoryListEl.innerHTML = ``;
+    }
+});
+
 const provider = new GoogleAuthProvider();
 
 signInBtn.onclick = () => signInWithRedirect(auth, provider);
@@ -64,34 +123,15 @@ auth.onAuthStateChanged(user => {
     if (user) {
         whenSignedIn.hidden = false;
         whenSignedOut.hidden = true;
+        signInBtn.hidden = true;
         userDetails.innerHTML = `<h3>${user.email} signed in</h3>`
     } else {
         whenSignedIn.hidden = true;
         whenSignedOut.hidden = false;
+        signInBtn.hidden = false;
         userDetails.innerHTML = `<h3>Sign in for memories!</h3>`
     }
 })
-
-onValue(memoriesInDB, (snapshot) => {
-    if (snapshot.exists()) {
-        let memoriesArray = Object.entries(snapshot.val());
-        memoriesArray.reverse();
-        let render = '';
-        for (const memory of memoriesArray) {
-            const currentMemory = memory[1];
-            render += 
-            `<div class="list-group-item">
-                <div class="d-flex w-100 justify-content-between">
-                    <h5 class="mb-1">${currentMemory.city.split(', ')[0]}</h5>
-                    <small class="text-body-secondary">${currentMemory.conditions}</small>
-                 </div>
-                 <p class="mb-1">${currentMemory.note}</p>
-                 <small class="text-body-secondary">${currentMemory.timestamp}</small>
-            </div>`;
-        }
-        memoryListEl.innerHTML = render;
-    }
-});
 
 // needed because conditions from OpenWeatherMap aren't capitalized
 const capitalizeFirstLetter = (string) => {
@@ -117,19 +157,16 @@ searchButtonEl.addEventListener('click', () => {
 });
 
 memoryButtonEl.addEventListener('click', () => {
+    if (!auth.currentUser) {
+        alert("Please sign in to create a memory.");
+        return;
+    }
     if (cityHeaderEl.textContent.length == 0){
-        alert("Please perform a search first!");
+        alert("Please perform a search first");
         return;
     }
     const modal = new bootstrap.Modal(memoryModalEl);
     modal.show();
-})
-
-saveMemoryBtnEl.addEventListener('click', () => {
-    const city = cityHeaderEl.textContent;
-    const conditions = `${currentTempEl.textContent}, ${conditionsEl.textContent}`;
-    const note = memoryNoteEl.value;
-    saveMemoryToFirebase(city, conditions, note);
 })
 
 // Functions
@@ -225,17 +262,4 @@ function renderWeatherData(currentConditions, currentTemp, highTemp, lowTemp, fe
     windEl.innerHTML = `${windSpeed} MPH`;
     humidityEl.innerHTML = `${humidity}%`;
 
-}
-
-async function saveMemoryToFirebase(city, conditions, note) {
-    try {
-        await push(memoriesInDB, {
-            city,
-            conditions,
-            note,
-            timestamp: new Date().toLocaleString()
-        })
-    } catch(error) {
-        console.error('Error saving memory:', error);
-    }
 }

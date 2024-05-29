@@ -151,21 +151,21 @@
         </div>
       </div>
 
-      <!-- sign in and remember this day button -->
-      <div class="row">
-        <div class="col m-4" id="whenSignedOut">
+      <!-- sign in/out and remember this day button -->
+      <div class="row d-flex flex-row justify-content-center align-items-center">
+        <div class="col m-2 d-flex flex-column justify-content-center align-items-center" id="whenSignedOut">
           <div id = 'userDetails'></div>
           <button id="signInBtn" class="btn btn-primary">
             Sign in with Google
           </button>
         </div>
-        <div class="col m-4" id="whenSignedIn" hidden="true">
+        <div class="col m-3" id="whenSignedIn" hidden="true">
           <div id = 'userDetails'></div>
           <button id="signOutBtn" class="btn btn-primary">
             Sign out
           </button>
         </div>
-        <div class="col m-4">
+        <div class="col m-3 d-flex flex-column justify-content-center align-items-center">
           <button id="memoryBtn" class="btn btn-success">
             Remember this day
           </button>
