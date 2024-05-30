@@ -11,3 +11,5 @@ My primary motivation for this project was to get more familiar with vanilla JS,
 * **Git branches** - The true utility of git branches. When you have something that works, don't mess it up.
 * **Environment variables** - Sensitive items like the OpenWeatherMap API key need to be stored in a .env file and configured in Netlify.
 * **Bootstrap** - I didn't want to spend a ton of time on styling for this project and Bootstrap came in handy, especially the grid system.
+
+Site: https://celeryweather.netlify.app/
