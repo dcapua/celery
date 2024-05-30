@@ -151,26 +151,52 @@
         </div>
       </div>
 
-      <!-- sign in/out and remember this day button -->
-      <div class="row d-flex flex-row justify-content-center align-items-center">
-        <div class="col m-2 d-flex flex-column justify-content-center align-items-center" id="whenSignedOut">
-          <div id = 'userDetails'></div>
+      <!-- user details -->
+      <div class="row text-center p-2">
+        <div id = 'userDetails' ></div>
+      </div>
+
+      <!-- sign in button -->
+      <div class="row p-2" id="whenSignedOut">
+        <div class="col">
           <button id="signInBtn" class="btn btn-primary">
             Sign in with Google
           </button>
         </div>
-        <div class="col m-3" id="whenSignedIn" hidden="true">
-          <div id = 'userDetails'></div>
+      </div>
+
+      <!-- sign out button/ make memory button -->
+      <div class="row p-3" id="whenSignedIn" hidden="true">
+        <div class="col">
           <button id="signOutBtn" class="btn btn-primary">
             Sign out
           </button>
-        </div>
-        <div class="col m-3 d-flex flex-column justify-content-center align-items-center">
           <button id="memoryBtn" class="btn btn-success">
-            Remember this day
+            Make a Memory
           </button>
         </div>
       </div>
+
+      <!-- <div class="row d-flex flex-row justify-content-center align-items-center">
+        <div class="col">
+          <div class="col" id="whenSignedOut">
+            <button id="signInBtn" class="btn btn-primary">
+              Sign in with Google
+            </button>
+          </div>
+          <div class="col" id="whenSignedIn" hidden="true">
+            <button id="signOutBtn" class="btn btn-primary">
+              Sign out
+            </button>
+            <button id="memoryBtn" class="btn btn-success">
+              Make a Memory
+            </button>
+          </div>
+        </div>
+        <div class="col">
+          
+        </div>
+      </div> -->
 
       <!-- memory list -->
       <div id="memoryList" class="list-group">

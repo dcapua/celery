@@ -1,6 +1,6 @@
 import { initializeApp } from "firebase/app"
 import { getFirestore, collection, addDoc, query, where, orderBy, onSnapshot, serverTimestamp } from "firebase/firestore";
-import { getAuth, GoogleAuthProvider, signInWithRedirect, signOut, onAuthStateChanged } from "firebase/auth";
+import { getAuth, GoogleAuthProvider, signInWithRedirect, signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
 
 const key = import.meta.env.VITE_API_KEY;
 
@@ -116,20 +116,22 @@ onAuthStateChanged(auth, user => {
 
 const provider = new GoogleAuthProvider();
 
-signInBtn.onclick = () => signInWithRedirect(auth, provider);
+signInBtn.onclick = () => signInWithPopup(auth, provider);
 signOutBtn.onclick = () => signOut(auth);
 
 auth.onAuthStateChanged(user => {
-    if (user) {
+    if (user) { // signed in
         whenSignedIn.hidden = false;
         whenSignedOut.hidden = true;
         signInBtn.hidden = true;
-        userDetails.innerHTML = `<h3>${user.email} signed in</h3>`
-    } else {
+        signOutBtn.hidden = false;
+        userDetails.innerHTML = `<p class = 'm-0'>${user.email} signed in</p>`
+    } else { // signed out
         whenSignedIn.hidden = true;
         whenSignedOut.hidden = false;
         signInBtn.hidden = false;
-        userDetails.innerHTML = `<h3>Sign in for memories!</h3>`
+        signOutBtn.hidden = true;
+        userDetails.innerHTML = `<p class = 'm-0'>Sign in to write a memory!</p>`
     }
 })
 
@@ -157,10 +159,6 @@ searchButtonEl.addEventListener('click', () => {
 });
 
 memoryButtonEl.addEventListener('click', () => {
-    if (!auth.currentUser) {
-        alert("Please sign in to create a memory.");
-        return;
-    }
     if (cityHeaderEl.textContent.length == 0){
         alert("Please perform a search first");
         return;
