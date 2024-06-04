@@ -9,6 +9,9 @@ const inputFieldEl = document.querySelector('#searchInput');
 const searchButtonEl = document.querySelector('#searchBtn');
 const cityHeaderEl = document.querySelector('#cityHeader');
 
+const mainDataContainers = document.querySelectorAll('.main-data-container');
+const secondaryDataContainer = document.querySelector('#secondary-data-container');
+const cityHeaderRow = document.querySelector('#city-header-row');
 const conditionsEl = document.querySelector('#conditions');
 const currentTempEl = document.querySelector('#currentTemp');
 const highTempEl = document.querySelector('#highTemp');
@@ -206,12 +209,12 @@ async function performSearch(city) {
 // Update Weather UI
 function updateUI(forecastData, locationData) {
 
-    const lowTemp = forecastData.main.temp_min;
-    const highTemp = forecastData.main.temp_max;
-    const currentTemp = forecastData.main.temp;
+    const lowTemp = Math.round(forecastData.main.temp_min);
+    const highTemp = Math.round(forecastData.main.temp_max);
+    const currentTemp = Math.round(forecastData.main.temp);
     const currentConditions = capitalizeFirstLetter(forecastData.weather[0].description);
-    const feelsLikeTemp = forecastData.main.feels_like;
-    const windSpeed = forecastData.wind.speed;
+    const feelsLikeTemp = Math.round(forecastData.main.feels_like);
+    const windSpeed = Math.round(forecastData.wind.speed);
     const humidity = forecastData.main.humidity;
     const city = locationData[0].name;
     const state = locationData[0].state;
@@ -248,15 +251,21 @@ function clearInputField() {
 }
 
 function renderHeader(city, state, country) {
+    cityHeaderRow.hidden = false;
     cityHeaderEl.innerHTML = `${city}, ${state}, ${country}`;
 }
 
 function renderWeatherData(currentConditions, currentTemp, highTemp, lowTemp, feelsLikeTemp, windSpeed, humidity) {
+    mainDataContainers.forEach(container => {
+        container.hidden = false;
+    });
+    secondaryDataContainer.hidden = false;
+
     conditionsEl.innerHTML = `${currentConditions}`;
-    highTempEl.innerHTML = `${highTemp} F`;
-    currentTempEl.innerHTML = `${currentTemp} F`;
-    lowTempEl.innerHTML = `${lowTemp} F`;
-    feelsLikeEl.innerHTML = `${feelsLikeTemp} F`;
+    highTempEl.innerHTML = `${highTemp}°F`;
+    currentTempEl.innerHTML = `${currentTemp}°F`;
+    lowTempEl.innerHTML = `${lowTemp}°F`;
+    feelsLikeEl.innerHTML = `${feelsLikeTemp}°F`;
     windEl.innerHTML = `${windSpeed} MPH`;
     humidityEl.innerHTML = `${humidity}%`;
 

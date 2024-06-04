@@ -63,14 +63,18 @@
     </div>
 
     <div class="container">
+      
       <!-- search bar, button, and recents -->
+      <!-- Header -->
       <div class="row">
         <div class="col p-2">
           <h1>Celery Weather 🌤️</h1>
         </div>
       </div>
-      <div class="row">
-        <div class="col d-flex justify-content-center align-items-center">
+      <!-- Search row -->
+      <div class="row d-flex flex-lg-row flex-column align-items-center">
+        <!-- Search bar and button col -->
+        <div class="col d-flex justify-content-center justify-content-lg-end gap-1">
           <input
             id="searchInput"
             type="search"
@@ -80,27 +84,30 @@
           />
           <button id="searchBtn" class="btn btn-primary">Search</button>
         </div>
+        <!-- Recent searches and searches list col -->
         <div
-          class="col d-flex my-4 flex-column justify-content-center align-items-center"
+          class="col d-flex my-4 flex-column align-items-center align-items-lg-start"
         >
-          <h3>Recents</h3>
-          <ul id="pastSearches" class="list-group">
-            --
-          </ul>
+          <div class="div">
+            <h3 class="text-center">Recents</h3>
+            <ul id="pastSearches" class="list-group">
+              --
+            </ul>
+          </div>
         </div>
       </div>
 
       <!-- city header -->
-      <div class="row my-2">
-        <div class="col d-flex justify-content-center align-items-center">
-          <h1 id="cityHeader"></h1>
+      <div class="row my-2" id='city-header-row' hidden="true">
+        <div class="col d-flex justify-content-center">
+          <h1 id="cityHeader" class="display-4"></h1>
         </div>
       </div>
 
       <!-- conditions section -->
-      <div class="row main-data-container">
+      <div class="row main-data-container" hidden="true">
         <div
-          class="col d-flex flex-column justify-content-center align-items-center"
+          class="col d-flex flex-column align-items-center"
         >
           <div id="conditions" class="row">--</div>
           <div class="row parameter">Conditions</div>
@@ -108,21 +115,21 @@
       </div>
 
       <!-- main data (temperature) section -->
-      <div class="row main-data-container">
+      <div class="row main-data-container" hidden="true">
         <div
-          class="col d-flex flex-column justify-content-center align-items-center"
+          class="col d-flex flex-column align-items-center"
         >
           <div id="highTemp" class="row">--</div>
           <div class="row parameter">High</div>
         </div>
         <div
-          class="col d-flex flex-column justify-content-center align-items-center"
+          class="col d-flex flex-column align-items-center"
         >
           <div id="currentTemp" class="row">--</div>
           <div class="row parameter">Current</div>
         </div>
         <div
-          class="col d-flex flex-column justify-content-center align-items-center"
+          class="col d-flex flex-column align-items-center"
         >
           <div id="lowTemp" class="row">--</div>
           <div class="row parameter">Low</div>
@@ -130,32 +137,34 @@
       </div>
 
       <!-- secondary data section -->
-      <div id="secondary-data-container" class="row">
+      <div id="secondary-data-container" class="row" hidden="true">
         <div
-          class="col d-flex flex-column justify-content-center align-items-center"
+          class="col d-flex flex-column align-items-center"
         >
+          
+          <div id="humidity" class="row">--</div>
+          <div class="row parameter">Humidity</div>
+        </div>
+        <div
+          class="col d-flex flex-column align-items-center"
+        >
+          
           <div id="feelsLike" class="row">--</div>
           <div class="row parameter">Feels Like</div>
         </div>
         <div
-          class="col d-flex flex-column justify-content-center align-items-center"
+          class="col d-flex flex-column align-items-center"
         >
           <div id="wind" class="row">--</div>
           <div class="row parameter">Wind</div>
         </div>
-        <div
-          class="col d-flex flex-column justify-content-center align-items-center"
-        >
-          <div id="humidity" class="row">--</div>
-          <div class="row parameter">Humidity</div>
-        </div>
       </div>
 
       <!-- user details -->
-      <div class="row text-center p-2">
-        <div id = 'userDetails' ></div>
+      <div class="d-flex justify-content-center">
+        <div id = 'userDetails' class="badge bg-secondary"></div>
       </div>
-
+        
       <!-- sign in button -->
       <div class="row p-2" id="whenSignedOut">
         <div class="col">
@@ -176,27 +185,6 @@
           </button>
         </div>
       </div>
-
-      <!-- <div class="row d-flex flex-row justify-content-center align-items-center">
-        <div class="col">
-          <div class="col" id="whenSignedOut">
-            <button id="signInBtn" class="btn btn-primary">
-              Sign in with Google
-            </button>
-          </div>
-          <div class="col" id="whenSignedIn" hidden="true">
-            <button id="signOutBtn" class="btn btn-primary">
-              Sign out
-            </button>
-            <button id="memoryBtn" class="btn btn-success">
-              Make a Memory
-            </button>
-          </div>
-        </div>
-        <div class="col">
-          
-        </div>
-      </div> -->
 
       <!-- memory list -->
       <div id="memoryList" class="list-group">

@@ -1,12 +1,7 @@
 body {
     margin: 0;
-    /* background-color: black; */
-    background: black;
+    background-color: black;
     color: #fff;
-}
-
-.container {
-    margin-top: 5%;
 }
 
 #searchInput {
@@ -41,7 +36,7 @@ ul {
     color: #000000;
     border-radius: 50px; 
     padding: 8px 16px; 
-    margin: 5px; 
+    margin: 10px; 
 }
 
 .parameter {
@@ -53,3 +48,9 @@ ul {
     background-color: #d0d0d0;
     color: #222; 
 }
+
+@media (min-width: 768px) {
+    .container {
+      max-width: 45%; /* Change the max-width for larger screens */
+    }
+  }
