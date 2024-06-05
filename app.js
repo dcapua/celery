@@ -80,6 +80,7 @@ onAuthStateChanged(auth, user => {
                 });
 
                 console.log('Document successfully added!');
+                memoryNoteEl.value = ''
             } catch (error) {
                 console.error('Error adding document: ', error);
             }
