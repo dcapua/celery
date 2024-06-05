@@ -3,8 +3,8 @@
 
 Site: https://celeryweather.netlify.app/
 
-Frontend: Vanilla JS, Bootstrap, HTML/CSS
-Backend: Node, Firebase, Axios
+Frontend: Vanilla JS, Bootstrap, HTML/CSS\
+Backend: Node, Firebase, Axios\
 DevOps: Vite, Netlify
 
 *Sigh*... Yes, another weather app for retrieving current weather conditions. However, there is also a "memories" feature which allows the user to save the current location/conditions and a note to their own personal database. 
